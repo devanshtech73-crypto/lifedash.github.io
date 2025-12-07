@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeDash - Daily Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-chart-line"></i> LifeDash</h1>
+        <button id="theme-toggle" aria-label="Toggle Light/Dark Mode"><i class="fas fa-moon"></i></button>
+    </header>
+
+    <main class="dashboard">
+        <section id="daily-score-card" class="card score-card">
+            <h2><i class="fas fa-star"></i> Daily Score</h2>
+            <div id="daily-score-display" class="score-display">
+                <span id="score-grade">N/A</span>
+                <p id="score-message">Complete your tasks to see your score!</p>
+            </div>
+            <button onclick="lifeDash.calculateDailyScore()">Calculate Score</button>
+        </section>
+
+        <section id="habit-tracker-card" class="card">
+            <h2><i class="fas fa-check-circle"></i> Daily Habits</h2>
+            <div id="habit-list">
+                </div>
+        </section>
+
+        <section id="mood-stress-card" class="card">
+            <h2><i class="fas fa-smile"></i> Mood & Stress</h2>
+            <div class="mood-selector">
+                <label for="mood">Mood:</label>
+                <select id="mood-select" onchange="lifeDash.saveMoodStress()">
+                    <option value="5">😁 Happy</option>
+                    <option value="4">😊 Good</option>
+                    <option value="3">😐 Neutral</option>
+                    <option value="2">😔 Sad</option>
+                    <option value="1">😢 Awful</option>
+                </select>
+            </div>
+            <div class="stress-tracker">
+                <label for="stress-level">Stress Level: <span id="stress-value">5</span>/10</label>
+                <input type="range" id="stress-slider" min="1" max="10" value="5" oninput="document.getElementById('stress-value').textContent=this.value; lifeDash.saveMoodStress()">
+            </div>
+        </section>
+
+        <section id="meal-planner-card" class="card">
+            <h2><i class="fas fa-utensils"></i> Meal & Calorie Planner</h2>
+            <div class="meal-plan">
+                <div class="meal-input">
+                    <label for="breakfast-meal">Breakfast:</label>
+                    <input type="text" id="breakfast-meal" placeholder="e.g., Oatmeal" oninput="lifeDash.saveMeals()">
+                </div>
+                <div class="meal-input">
+                    <label for="lunch-meal">Lunch:</label>
+                    <input type="text" id="lunch-meal" placeholder="e.g., Salad w/ Chicken" oninput="lifeDash.saveMeals()">
+                </div>
+                <div class="meal-input">
+                    <label for="dinner-meal">Dinner:</label>
+                    <input type="text" id="dinner-meal" placeholder="e.g., Fish & Veggies" oninput="lifeDash.saveMeals()">
+                </div>
+            </div>
+            <div class="calorie-input">
+                <label for="calorie-count">Total Calories:</label>
+                <input type="number" id="calorie-count" placeholder="e.g., 2000" oninput="lifeDash.saveMeals()">
+            </div>
+            <button onclick="lifeDash.generateSimplePlan()">Generate Simple Plan</button>
+        </section>
+
+        <section id="todo-routine-card" class="card">
+            <h2><i class="fas fa-clipboard-list"></i> To-Do & Routine</h2>
+            <div id="todo-list">
+                </div>
+            <div class="add-todo">
+                <input type="text" id="new-todo-input" placeholder="Add new to-do/routine item">
+                <button onclick="lifeDash.addTodoItem()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
