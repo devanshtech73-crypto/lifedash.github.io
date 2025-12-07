@@ -1,0 +1,271 @@
+/* --- Global Styles --- */
+:root {
+    --color-primary: #3498db; /* Blue */
+    --color-secondary: #2ecc71; /* Green */
+    --color-text-light: #2c3e50;
+    --color-text-dark: #ecf0f1;
+    --color-bg-light: #f4f7f6;
+    --color-bg-card-light: #ffffff;
+    --color-shadow-light: rgba(0, 0, 0, 0.1);
+
+    /* Dark Mode Variables */
+    --color-bg: var(--color-bg-light);
+    --color-card-bg: var(--color-bg-card-light);
+    --color-text: var(--color-text-light);
+    --color-input-bg: #ecf0f1;
+    --color-border: #bdc3c7;
+}
+
+/* Dark Mode Overrides */
+body.dark-mode {
+    --color-bg: #2c3e50;
+    --color-card-bg: #34495e;
+    --color-text: var(--color-text-dark);
+    --color-input-bg: #4a637a;
+    --color-border: #7f8c8d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* --- Header & Theme Toggle --- */
+header {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px var(--color-shadow-light);
+}
+
+header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+#theme-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+#theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Dashboard Layout --- */
+.dashboard {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .score-card {
+        grid-column: span 2;
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .score-card {
+        grid-column: 1 / 4; /* Full width on larger screens */
+    }
+}
+
+/* --- Card Styles --- */
+.card {
+    background-color: var(--color-card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--color-shadow-light);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+}
+
+body.dark-mode .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--color-shadow-light);
+}
+
+.card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.card h2 i {
+    margin-right: 10px;
+    color: var(--color-primary);
+}
+
+/* --- Forms & Inputs --- */
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--color-input-bg);
+    color: var(--color-text);
+    transition: border-color 0.2s;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 5px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+}
+
+button {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #27ae60;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* --- Score Card Specifics --- */
+.score-display {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    border: 3px dashed var(--color-primary);
+    border-radius: 10px;
+}
+
+#score-grade {
+    display: block;
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+#score-message {
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+/* --- Habit List --- */
+.habit-item, .todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.habit-item:last-child, .todo-item:last-child {
+    border-bottom: none;
+}
+
+.habit-item label, .todo-item span {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.habit-item input[type="checkbox"], .todo-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 15px;
+    accent-color: var(--color-secondary);
+}
+
+.habit-done span, .todo-done span {
+    text-decoration: line-through;
+    color: #95a5a6;
+}
+
+/* --- To-Do Manager --- */
+.add-todo {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.add-todo input {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.todo-item button {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 1rem;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.todo-item button:hover {
+    color: #c0392b;
+}
+
+/* --- Meal Planner --- */
+.meal-plan {
+    margin-bottom: 15px;
+}
+
+.meal-input label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+}
