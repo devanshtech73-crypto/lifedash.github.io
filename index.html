@@ -4,12 +4,405 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickPoll - Modern Polling</title>
-    <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-</head>
+    
+    <style>
+        :root {
+            --color-primary: #1e88e5; /* Deep Sky Blue */
+            --color-accent: #ffb300; /* Amber Yellow */
+            --color-secondary: #43a047; /* Green for Success/Vote */
+            --color-background: #f4f6f8;
+            --color-card-bg: #ffffff;
+            --color-text: #263238;
+            --color-shadow: rgba(0, 0, 0, 0.15);
+            --color-danger: #e57373;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding-top: 80px;
+            min-height: 100vh;
+            animation: background-fade 1s ease-out;
+        }
+
+        @keyframes background-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, var(--color-primary), #00bcd4);
+            color: white;
+            padding: 18px 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* --- General Layout and Cards (Improved UI/UX) --- */
+        #app-container {
+            display: flex;
+            justify-content: center;
+            padding: 30px 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        #app-container.fade-out {
+            opacity: 0;
+        }
+
+        .card {
+            background-color: var(--color-card-bg);
+            padding: 35px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px var(--color-shadow);
+            width: 100%;
+            max-width: 650px;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        /* --- Forms & Inputs --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cfd8dc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(255, 179, 0, 0.2);
+            outline: none;
+        }
+
+        .option-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-input-wrapper input {
+            margin-bottom: 0;
+        }
+
+        /* --- Buttons (Modern/Soft) --- */
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .submit-btn {
+            background-color: var(--color-primary);
+            color: white;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);
+        }
+        .submit-btn:hover {
+            background-color: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(30, 136, 229, 0.4);
+        }
+
+        #add-option-btn {
+            background-color: #607d8b;
+            color: white;
+            margin-right: 10px;
+        }
+        #add-option-btn:hover:not(:disabled) {
+            background-color: #455a64;
+        }
+
+        .remove-option-btn {
+            background: var(--color-danger);
+            color: white;
+            padding: 10px 14px;
+        }
+        .remove-option-btn:hover {
+            background: #c62828;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background-color: #cfd8dc;
+            cursor: not-allowed;
+            color: #78909c;
+            box-shadow: none;
+        }
+
+        /* --- Poll Creation Success Animation --- */
+        .poll-creator.success-animation {
+            border: 3px solid var(--color-secondary);
+            box-shadow: 0 0 25px rgba(67, 160, 71, 0.6);
+            transform: scale(1.05);
+            animation: success-pulse 0.8s ease-out;
+        }
+        @keyframes success-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 1; }
+            100% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        /* --- Poll View (Voting) Styles --- */
+        .total-votes-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-secondary);
+            margin-bottom: 20px;
+            text-align: right;
+            border-bottom: 1px dashed #cfd8dc;
+            padding-bottom: 10px;
+        }
+
+        /* Option Button Animation */
+        .poll-option-btn {
+            width: 100%;
+            text-align: left;
+            background-color: #f1f8e9; /* Light green/neutral */
+            color: var(--color-text);
+            border: 2px solid #e0e0e0;
+            padding: 18px;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .poll-option-btn:hover {
+            background-color: #e8f5e9;
+            border-color: var(--color-secondary);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 4px 10px rgba(67, 160, 71, 0.2);
+        }
+
+        .voted-animation {
+            background-color: var(--color-accent) !important;
+            color: white !important;
+            border-color: var(--color-accent) !important;
+            animation: voted-pop 0.5s ease-out;
+        }
+        @keyframes voted-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Results Display Styles --- */
+        .option-result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            padding: 10px 0;
+        }
+        .my-vote-highlight {
+            background-color: #fff9c4; /* Light yellow highlight */
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 -10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-text {
+            width: 35%;
+            min-width: 120px;
+            font-weight: 600;
+            padding-right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar-container {
+            flex-grow: 1;
+            background-color: #e0f2f1; /* Lighter base for bars */
+            border-radius: 50px;
+            height: 30px;
+            margin-right: 15px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-secondary), #81c784);
+            transition: width 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy Animation */
+            border-radius: 50px;
+            box-shadow: inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .percentage {
+            width: 15%;
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+            color: var(--color-secondary);
+            transition: color 0.5s;
+        }
+
+        /* --- Share Area & Snackbar --- */
+        .share-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 35px;
+            align-items: center;
+            padding-top: 25px;
+            border-top: 1px solid #eceff1;
+        }
+
+        #poll-link {
+            flex-grow: 1;
+            cursor: text;
+            background-color: #f5f5f5;
+            font-size: 0.9rem;
+        }
+
+        .copy-link-btn {
+            margin-top: 0;
+            flex-shrink: 0;
+            background-color: var(--color-accent);
+        }
+        .copy-link-btn:hover {
+            background-color: #f9a825;
+        }
+
+        #snackbar {
+            visibility: hidden; 
+            min-width: 250px;
+            background-color: #333; 
+            color: #fff; 
+            text-align: center; 
+            border-radius: 8px; 
+            padding: 16px; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 50%; 
+            bottom: 30px; 
+            transform: translateX(-50%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 600px) {
+            body {
+                padding-top: 60px;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card h2 {
+                font-size: 1.5rem;
+            }
+            .option-result {
+                flex-wrap: wrap;
+                padding: 10px 0;
+            }
+            .option-text {
+                width: 100%;
+                margin-bottom: 5px;
+                padding-right: 0;
+            }
+            .bar-container {
+                flex-grow: 1;
+                width: 75%;
+            }
+            .percentage {
+                width: 25%;
+            }
+            .share-area {
+                flex-direction: column;
+            }
+            .copy-link-btn {
+                width: 100%;
+            }
+        }
+    </style>
+    </head>
 <body>
 
     <header>
@@ -22,9 +415,9 @@
     <div id="snackbar">Link Copied!</div>
 
     <script>
-        // --- script.js content starts here (Client-side logic) ---
+        // --- script.js content starts here ---
 
-        // ✨ IMPORTANT: Updated Server URL pointing to the API endpoint
+        // ✨ IMPORTANT: Set to the remote API URL
         const SERVER_BASE_URL = 'https://strangeneo.gt.tc/';
         const SERVER_ENDPOINT = SERVER_BASE_URL + 'server.php'; 
 
@@ -58,77 +451,284 @@
                     return response.json();
                 } catch (error) {
                     console.error("API Request Failed:", error);
-                    alert(`API Request Failed: ${error.message}. Common causes: Incorrect API URL, or the server (${SERVER_BASE_URL}) blocking CORS requests.`);
+                    alert(`API Request Failed: ${error.message}. Common causes: Incorrect API URL, or the server blocking CORS.`);
                     return null;
                 }
             },
             
-            // Specific API calls
             createPoll: (pollData) => API.request('create', 'POST', pollData),
             getPoll: (pollId) => API.request(`get&id=${pollId}`, 'GET'),
             vote: (pollId, optionIndex) => API.request('vote', 'POST', { pollId, optionIndex }),
         };
 
         /**
-         * Core Application Logic (Omitted for brevity, assume the remaining JS logic from the 
-         * previous response is included here: QuickPoll.init, handleRouteChange, 
-         * renderCreatePoll, handlePollCreation, renderPollView, handleVote, etc.)
-         * * NOTE: You MUST include the full JavaScript logic from the previous, detailed 
-         * response here for the app to function.
+         * Core Application Logic
          */
-        
-        // --- Full JavaScript Logic (Simplified for output, assume all helper methods are included) ---
         const QuickPoll = {
-            // ... (All functions like init, handleRouteChange, renderCreatePoll, etc.) ...
-
-            // Placeholder for demonstration:
             init: () => {
                 const hash = window.location.hash.substring(1);
                 QuickPoll.handleRouteChange(hash);
+
+                window.addEventListener('hashchange', () => {
+                    QuickPoll.handleRouteChange(window.location.hash.substring(1));
+                });
             },
+
             handleRouteChange: (hash) => {
-                // Simplified rendering logic placeholder
-                if (hash) {
-                    QuickPoll.renderPollView(hash);
-                } else {
-                    QuickPoll.renderCreatePoll();
-                }
+                APP_CONTAINER.classList.add('fade-out');
+                setTimeout(() => {
+                    if (hash) {
+                        QuickPoll.renderPollView(hash);
+                    } else {
+                        QuickPoll.renderCreatePoll();
+                    }
+                    APP_CONTAINER.classList.remove('fade-out');
+                }, 300);
             },
-            // The following functions are critical and must be fully included from the prior response:
-            renderCreatePoll: () => { 
-                // ... (Full form HTML injection logic) ... 
+
+            // --- Poll Creation ---
+            renderCreatePoll: () => {
                 APP_CONTAINER.innerHTML = `
                     <section class="card poll-creator">
                         <h2><i class="fas fa-plus-circle"></i> Create a New Poll</h2>
-                        <form id="poll-form">...</form>
+                        <form id="poll-form">
+                            <div class="form-group">
+                                <label for="question">Poll Question:</label>
+                                <input type="text" id="question" required maxlength="100" placeholder="e.g., What is your favorite programming language?">
+                            </div>
+                            <div id="options-container">
+                                ${QuickPoll.generateOptionInput(1)}
+                                ${QuickPoll.generateOptionInput(2)}
+                            </div>
+                            <button type="button" id="add-option-btn"><i class="fas fa-plus"></i> Add Option</button>
+                            <button type="submit" class="submit-btn"><i class="fas fa-check"></i> Create & Share</button>
+                        </form>
                     </section>
                 `;
-                 document.getElementById('poll-form').addEventListener('submit', QuickPoll.handlePollCreation);
-                 QuickPoll.updateAddOptionButtonState();
+
+                document.getElementById('poll-form').addEventListener('submit', QuickPoll.handlePollCreation);
+                document.getElementById('add-option-btn').addEventListener('click', QuickPoll.addOption);
+                QuickPoll.updateAddOptionButtonState();
             },
-            handlePollCreation: async (e) => {
-                e.preventDefault();
-                // ... (Poll data collection logic) ...
-                const response = await API.createPoll({ question: "Example", options: [{text: "A"}, {text: "B"}] });
-                if (response && response.pollId) {
-                    console.log("Poll created:", response.pollId);
-                    window.location.hash = response.pollId; 
+
+            generateOptionInput: (index, value = '') => {
+                const isRemovable = index > 2;
+                return `
+                    <div class="form-group option-group" data-index="${index}">
+                        <label for="option-${index}">Option ${index}:</label>
+                        <div class="option-input-wrapper">
+                            <input type="text" id="option-${index}" class="poll-option-input" value="${value}" required maxlength="50" placeholder="Option text">
+                            ${isRemovable ? `<button type="button" class="remove-option-btn" onclick="QuickPoll.removeOption(${index})"><i class="fas fa-times"></i></button>` : ''}
+                        </div>
+                    </div>
+                `;
+            },
+            
+            addOption: function() {
+                const container = document.getElementById('options-container');
+                const currentOptions = container.querySelectorAll('.option-group').length;
+                if (currentOptions < 6) {
+                    const newIndex = currentOptions + 1;
+                    container.insertAdjacentHTML('beforeend', QuickPoll.generateOptionInput(newIndex));
+                }
+                QuickPoll.updateAddOptionButtonState();
+            },
+
+            removeOption: function(index) {
+                const elementToRemove = document.querySelector(`.option-group[data-index="${index}"]`);
+                if (elementToRemove) {
+                    elementToRemove.remove();
+                    QuickPoll.reIndexOptions();
+                }
+                QuickPoll.updateAddOptionButtonState();
+            },
+
+            reIndexOptions: function() {
+                const container = document.getElementById('options-container');
+                const options = container.querySelectorAll('.poll-option-input');
+                container.innerHTML = ''; 
+
+                options.forEach((input, i) => {
+                    const newIndex = i + 1;
+                    container.insertAdjacentHTML('beforeend', QuickPoll.generateOptionInput(newIndex, input.value));
+                });
+            },
+
+            updateAddOptionButtonState: function() {
+                const container = document.getElementById('options-container');
+                if (!container) return;
+                const currentOptions = container.querySelectorAll('.option-group').length;
+                const btn = document.getElementById('add-option-btn');
+                if (btn) {
+                    btn.disabled = currentOptions >= 6;
+                    btn.innerHTML = currentOptions >= 6 ? '<i class="fas fa-exclamation-circle"></i> Max Options (6)' : '<i class="fas fa-plus"></i> Add Option';
                 }
             },
-            renderPollView: async (pollId) => {
-                // ... (Poll data fetch and display logic) ...
-                 const poll = await API.getPoll(pollId);
-                 APP_CONTAINER.innerHTML = `<section class="card poll-view"><h2>${poll ? poll.question : 'Loading...'}</h2></section>`;
-            },
-            updateAddOptionButtonState: () => {}, // Placeholder
-            // ... (All other helper functions) ...
-        };
 
+
+            handlePollCreation: async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const question = form.querySelector('#question').value.trim();
+                const optionInputs = form.querySelectorAll('.poll-option-input');
+                
+                const options = Array.from(optionInputs)
+                    .map(input => ({
+                        text: input.value.trim(),
+                        votes: 0
+                    }))
+                    .filter(option => option.text !== '');
+
+                if (options.length < 2) {
+                    alert('Please provide at least two valid options.');
+                    return;
+                }
+
+                const newPollData = { question, options };
+                
+                const response = await API.createPoll(newPollData);
+
+                if (response && response.pollId) {
+                    const creatorCard = document.querySelector('.poll-creator');
+                    creatorCard.classList.add('success-animation');
+                    setTimeout(() => {
+                        creatorCard.classList.remove('success-animation');
+                        window.location.hash = response.pollId;
+                    }, 800);
+                }
+            },
+
+            // --- Poll Viewing and Voting ---
+            renderPollView: async (pollId) => {
+                const hasVoted = localStorage.getItem(`voted_${pollId}`) === 'true';
+                const poll = await API.getPoll(pollId);
+
+                if (!poll || poll.error) {
+                    APP_CONTAINER.innerHTML = '<section class="card error-message"><h2>Poll Not Found <i class="fas fa-frown"></i></h2><p>The poll ID is invalid or a server error occurred.</p><a href="#">Start New Poll</a></section>';
+                    return;
+                }
+                
+                APP_CONTAINER.innerHTML = `
+                    <section class="card poll-view" id="poll-view-card">
+                        <h2>${poll.question}</h2>
+                        <p class="total-votes-display"><i class="fas fa-users"></i> ${poll.totalVotes} Total Votes</p>
+                        <div class="poll-options-list" data-poll-id="${pollId}">
+                            ${poll.options.map((option, index) => 
+                                QuickPoll.generateOptionElement(pollId, option, index, hasVoted)
+                            ).join('')}
+                        </div>
+                        <div class="share-area">
+                            <input type="text" id="poll-link" value="${window.location.href}" readonly>
+                            <button class="copy-link-btn" onclick="QuickPoll.copyPollLink('${pollId}')" data-tooltip="Copy Link">
+                                <i class="fas fa-copy"></i> Copy Link
+                            </button>
+                        </div>
+                        <a href="#" class="back-link"><i class="fas fa-arrow-left"></i> Create New Poll</a>
+                    </section>
+                `;
+
+                if (!hasVoted) {
+                    document.querySelectorAll('.poll-option-btn').forEach(button => {
+                        button.addEventListener('click', QuickPoll.handleVote);
+                    });
+                } else {
+                    QuickPoll.updateResultsDisplay(poll);
+                }
+            },
+
+            generateOptionElement: (pollId, option, index, hasVoted) => {
+                const icon = hasVoted ? 'fas fa-chart-line' : 'far fa-hand-pointer';
+                
+                if (hasVoted) {
+                    return `
+                        <div class="option-result">
+                            <span class="option-text"><i class="${icon}"></i> ${option.text}</span>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar-${pollId}-${index}" style="width: 0%;" data-votes="${option.votes}"></div>
+                            </div>
+                            <span class="percentage" id="percent-${pollId}-${index}">0%</span>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <button class="poll-option-btn" data-poll-id="${pollId}" data-option-index="${index}">
+                            <i class="${icon}"></i> ${option.text}
+                        </button>
+                    `;
+                }
+            },
+
+            handleVote: async (e) => {
+                const btn = e.currentTarget;
+                const pollId = btn.dataset.pollId;
+                const optionIndex = parseInt(btn.dataset.optionIndex);
+
+                if (localStorage.getItem(`voted_${pollId}`) === 'true') {
+                    return;
+                }
+                
+                btn.classList.add('voted-animation');
+                document.querySelectorAll('.poll-option-btn').forEach(b => b.disabled = true);
+
+                const response = await API.vote(pollId, optionIndex);
+
+                if (response && response.success) {
+                    localStorage.setItem(`voted_${pollId}`, 'true');
+                    localStorage.setItem(`lastVotedIndex_${pollId}`, optionIndex);
+                    QuickPoll.renderPollView(pollId);
+                } else {
+                    alert('Voting failed. Server response error. Check the console for details.');
+                    document.querySelectorAll('.poll-option-btn').forEach(b => b.disabled = false);
+                    btn.classList.remove('voted-animation');
+                }
+            },
+
+            updateResultsDisplay: (poll) => {
+                poll.options.forEach((option, index) => {
+                    const percentage = poll.totalVotes > 0 ? (option.votes / poll.totalVotes) * 100 : 0;
+                    
+                    const barFill = document.getElementById(`bar-${poll.id}-${index}`);
+                    const percentSpan = document.getElementById(`percent-${poll.id}-${index}`);
+
+                    if (barFill) {
+                        setTimeout(() => {
+                             barFill.style.width = `${percentage.toFixed(1)}%`;
+                        }, 100);
+                    }
+                    if (percentSpan) {
+                         setTimeout(() => {
+                            percentSpan.textContent = `${percentage.toFixed(1)}% (${option.votes})`;
+                        }, 600);
+                    }
+                    
+                    if (localStorage.getItem(`lastVotedIndex_${poll.id}`) == index) {
+                        const resultDiv = barFill.closest('.option-result');
+                        if(resultDiv) resultDiv.classList.add('my-vote-highlight');
+                    }
+                });
+                document.querySelector('.total-votes-display').innerHTML = `<i class="fas fa-users"></i> ${poll.totalVotes} Total Votes`;
+            },
+
+            copyPollLink: (pollId) => {
+                const linkInput = document.getElementById('poll-link');
+                linkInput.select();
+                linkInput.setSelectionRange(0, 99999);
+
+                navigator.clipboard.writeText(linkInput.value).then(() => {
+                    SNACKBAR.textContent = `Link Copied! ID: ${pollId}`;
+                    SNACKBAR.className = "show";
+                    setTimeout(() => { 
+                        SNACKBAR.className = SNACKBAR.className.replace("show", ""); 
+                    }, 3000);
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', QuickPoll.init);
 
         // --- script.js content ends here ---
     </script>
-    
-    </body>
+</body>
 </html>
